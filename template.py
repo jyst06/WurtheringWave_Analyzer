@@ -1,5 +1,5 @@
 class Template:
-    def __init__(self, *, chart_filter: list = None):
+    def __init__(self, chart_filter: list = None):
         self.charts = {
             1: "var chart1 = new Chart(document.getElementById('chart1'), config1);",
             2: "var chart2 = new Chart(document.getElementById('chart2'), config2);",

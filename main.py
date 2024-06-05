@@ -3,6 +3,28 @@ import requests
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import webbrowser
+from template import Template
+import configparser
+
+def read_file_path_config() -> str | None:
+    """讀取路徑"""
+    config = configparser.ConfigParser()
+    config.read("config.ini", encoding='utf-8')
+    path_config = config.get("path", "log_path")
+    if path_config == "none":
+        return None
+    else:
+        return path_config
+
+
+def edit_file_path_config(path: str) -> None:
+    """修改配置路徑"""
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    config.set("path", "log_path", path)
+    with open("config.ini", "w", encoding='utf-8') as config_file:
+        config.write(config_file)
+
 
 def get_url_from_log(filepath: str) -> str:
     """從遊戲log文件解析出請求URL"""
@@ -57,11 +79,14 @@ class Pool:
                 return False
 
             for item in data:
-                return_data.append([item['name'], item['qualityLevel']])
+                return_data.append([item['name'], item['qualityLevel'], item['time']])
                 if five_star_counter == 0:
                     if item['qualityLevel'] == 5:
                         five_star_counter = counter
                 counter += 1
+
+            if five_star_counter == 0:
+                five_star_counter = counter
 
             return_data.append(counter) # [-2]
             return_data.append(five_star_counter) # [-1]
@@ -69,9 +94,11 @@ class Pool:
             return return_data
         else:
             print("Request failed!")
-            return False
+            messagebox.showerror("錯誤", "URL已過期，請重新進入遊戲抽卡紀錄!")
+            edit_file_path_config("none")
+            raise Exception("Request failed!")
 
-    def get_all_data(self):
+    def get_all_data(self) -> dict:
         queue = ["角色活動", "武器活動", "角色常駐", "武器常駐", "新手池", "新手定向"]
 
         for i, title in enumerate(queue):
@@ -81,19 +108,43 @@ class Pool:
             else:
                 self.data[title] = False
 
+        return self.data
+
 
 class Analyzer:
     """分析抽卡結果"""
-    def __init__(self):
+    def __init__(self, data: dict):
+        self.score = 100
+        self.data = data
+        self.analyzed_value = {
+            "評級": "",
+            "總抽數": 0,
+            "五星數": 0,
+            "角色活動五星第": 0,
+            "角色活動四星第": 0,
+            "角色活動上一個五星": "",
+            "武器活動五星第": 0,
+            "武器活動四星第": 0,
+            "武器活動上一個五星": "",
+            "角色常駐五星第": 0,
+            "角色常駐四星第": 0,
+            "角色常駐上一個五星": "",
+            "武器常駐五星第": 0,
+            "武器常駐四星第": 0,
+            "武器常駐上一個五星": "",
+            "新手五星": 0,
+            "新手四星": 0,
+            "新手三星": 0,
+            "新手自選五星": 0,
+            "新手自選四星": 0,
+            "新手自選三星": 0,
+        }
+
+    def analyze_all(self) -> dict:
         pass
 
-
-class Template:
-    """網頁模板"""
-    def __init__(self):
-        self.filling_value = dict(
-
-        )
+    def analyze_score(self):
+        pass
 
 
 class Ui(ctk.CTk):
@@ -106,8 +157,6 @@ class Ui(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         self.pack_items()
-
-        self.file_path = None
 
     def pack_items(self):
         step1_label = ctk.CTkLabel(self, text="第一步", font=("Arial", 16))
@@ -132,7 +181,8 @@ class Ui(ctk.CTk):
         github_button.pack(side="right", pady=10, padx=10)
 
     def open_file(self):
-        self.file_path = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
+        path = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
+        edit_file_path_config(path)
 
     def help_video(self):
         webbrowser.open("")
@@ -141,14 +191,31 @@ class Ui(ctk.CTk):
         webbrowser.open("https://github.com/jyst06?tab=repositories")
 
     def run_task(self):
-        if self.file_path:
-            url = get_url_from_log(self.file_path)
+        chart_filter = []
+        file_path = read_file_path_config()
+        if file_path:
+            url = get_url_from_log(file_path)
             payload = transform_url_to_payload(url)
 
             pool = Pool(payload)
             data = pool.get_all_data()
+            print(data)
+
+            analyzed_data = Analyzer(data).analyze_all()
+
+            for i, key in enumerate(data):
+                if not key:
+                    chart_filter.append(i+1)
+
+            if chart_filter:
+                template = Template(chart_filter)
+            else:
+                template = Template()
+
+            template(analyzed_data)
+
         else:
-            messagebox.showerror("錯誤", "請先選擇log文件")
+            messagebox.showerror("錯誤", "請先選擇log文件!")
 
     def loop(self):
         self.mainloop()
