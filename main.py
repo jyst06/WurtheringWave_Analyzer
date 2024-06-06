@@ -1,4 +1,4 @@
-__version__ = "1.2"
+__version__ = "1.3"
 
 import re
 import requests
@@ -451,6 +451,7 @@ class Ui(ctk.CTk):
     def open_file(self):
         path = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
         edit_file_path_config(path)
+        messagebox.showinfo("導入成功", path)
 
     def help_video(self):
         webbrowser.open("https://youtu.be/dQHYDs62lS8")
@@ -462,29 +463,32 @@ class Ui(ctk.CTk):
         chart_filter = []
         file_path = read_file_path_config()
         if file_path:
-            url = get_url_from_log(file_path)
-            payload = transform_url_to_payload(url)
+            try:
+                url = get_url_from_log(file_path)
+                payload = transform_url_to_payload(url)
 
-            pool = Pool(payload)
-            data = pool.get_all_data()
+                pool = Pool(payload)
+                data = pool.get_all_data()
 
-            analyzed_data = Analyzer(data).analyze_all()
+                analyzed_data = Analyzer(data).analyze_all()
 
-            for i, key in enumerate(data):
-                if not key:
-                    chart_filter.append(i+1)
+                for i, key in enumerate(data):
+                    if not key:
+                        chart_filter.append(i+1)
 
-            if chart_filter:
-                template = Template(chart_filter)
-            else:
-                template = Template()
+                if chart_filter:
+                    template = Template(chart_filter)
+                else:
+                    template = Template()
 
-            html_str = template(analyzed_data)
+                html_str = template(analyzed_data)
 
-            write_html(html_str)
+                write_html(html_str)
 
-            webbrowser.open("result.html")
+                webbrowser.open("result.html")
 
+            except Exception as e:
+                messagebox.showerror("錯誤", f"錯誤: {e}")
         else:
             messagebox.showerror("錯誤", "請先選擇log文件!")
 
