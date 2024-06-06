@@ -1,4 +1,4 @@
-__version__ = "1.1"
+__version__ = "1.2"
 
 import re
 import requests
@@ -118,6 +118,10 @@ class Pool:
                     if not five_star_pity_counter_status:
                         five_star_pity_counter = counter
                         five_star_pity_counter_status = True
+                    if not four_star_pity_counter_status:
+                        four_star_pity_counter = counter
+                        four_star_pity_counter_status = True
+
                 if item['qualityLevel'] == 4:
                     four_star_counter += 1
                     if not four_star_pity_counter_status:
