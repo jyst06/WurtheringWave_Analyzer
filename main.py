@@ -1,4 +1,4 @@
-__version__ = "1.4"
+__version__ = "1.5"
 
 import re
 import requests
@@ -423,6 +423,8 @@ class Analyzer:
         return_data_list = []
 
         for key in self.data:
+            if not self.data[key]:
+                continue
             for params_list in self.data[key]:
                 if type(params_list) is list:
                     if params_list[1] >= 4:
