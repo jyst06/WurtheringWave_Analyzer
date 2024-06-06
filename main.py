@@ -1,4 +1,4 @@
-__version__ = "1.5"
+__version__ = "1.6"
 
 import re
 import requests
@@ -53,9 +53,10 @@ def get_url_from_log(filepath: str) -> str:
     """從遊戲log文件解析出請求URL"""
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            if "OpenWebView" in line:
+            if "https://aki-gm-resources-oversea.aki-game.net/aki/gacha/index.html#/record" in line:
                 url_match = re.search(r'"url":"([^"]+)"', line)
 
+                print(f"Base URL:{url_match.group(1)}")
                 return url_match.group(1)
 
 
