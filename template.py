@@ -21,13 +21,14 @@ class Template:
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>分析結果</title>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
                 <style>
-                    body {{ /* 背景 */
+                    body {{
                         background-image: url('bg.png');
                         background-size: cover;
                         background-position: center center;
                         color: #000000;
-                        font-family: Arial, sans-serif;
+                        font-family: 'Noto Sans TC', sans-serif;
                         margin: 0;
                         padding: 0;
                         display: flex;
@@ -48,14 +49,15 @@ class Template:
                     }}
                     .header-container-box {{
                         flex: 1;
-                        background-color: rgba(255, 255, 255, 0.8);
+                        background-color: rgba(255, 255, 255, 0.9);
                         color: #000000;
                         padding: 20px;
                         border-radius: 10px;
                         text-align: center;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                     }}
-                    .chart-container {{ /* 圖表區 */
-                        background-color: rgba(255, 255, 255, 0.8);
+                    .chart-container {{
+                        background-color: rgba(255, 255, 255, 0.9);
                         width: 100%;
                         border-radius: 15px;
                         padding: 20px;
@@ -64,13 +66,18 @@ class Template:
                         flex-wrap: wrap;
                         justify-content: space-between;
                         gap: 20px;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                     }}
                     .chart-item {{
                         flex: 1;
                         max-width: 300px;
+                        transition: transform 0.3s;
                     }}
-                    .other-container {{ /* 其他區 */
-                        background-color: rgba(255, 255, 255, 0.8);
+                    .chart-item:hover {{
+                        transform: scale(1.05);
+                    }}
+                    .other-container {{
+                        background-color: rgba(255, 255, 255, 0.9);
                         border-radius: 15px;
                         padding: 20px;
                         margin-top: 20px;
@@ -78,15 +85,21 @@ class Template:
                         display: flex;
                         justify-content: space-around;
                         flex-wrap: wrap;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                     }}
                     .item {{
-                        background-color: rgba(255, 255, 255, 0.8);
+                        background-color: rgba(255, 255, 255, 0.9);
                         color: #000000;
                         border-radius: 10px;
                         padding: 15px;
                         margin: 5px;
                         width: 200px;
                         text-align: center;
+                        transition: transform 0.3s;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    }}
+                    .item:hover {{
+                        transform: scale(1.05);
                     }}
                     .item-row {{
                         margin-top: 10px;
@@ -97,7 +110,7 @@ class Template:
                 <div class="content-container">
                     <div class="header-container">
                         <div class="header-container-box">
-                            <p style="text-align: center; font-size: 50px;"><b>{params["評級"]}</b></p>
+                            <p style="text-align: center; font-size: 50px;"><b>運氣評分:{params["運氣分數"]}({params["評級"]})</b></p>
                         </div>
                         <div class="header-container-box">
                             <p style="text-align: left; font-size: 30px; padding-left: 20px"><b>總抽數:{params["總抽數"]}</b></p>
@@ -141,7 +154,7 @@ class Template:
                 </div>
                 <script>
                     const labels = ['5星', '4星', '3星'];
-            
+
                     const data1 = {{
                         labels: labels,
                         datasets: [{{
@@ -151,7 +164,7 @@ class Template:
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const data2 = {{
                         labels: labels,
                         datasets: [{{
@@ -161,7 +174,7 @@ class Template:
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const data3 = {{
                         labels: labels,
                         datasets: [{{
@@ -171,7 +184,7 @@ class Template:
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const data4 = {{
                         labels: labels,
                         datasets: [{{
@@ -181,7 +194,7 @@ class Template:
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const data5 = {{
                         labels: labels,
                         datasets: [{{
@@ -191,17 +204,17 @@ class Template:
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const data6 = {{
                         labels: labels,
                         datasets: [{{
                             label: '數量',
-                            data: [{params["新手自選五星"]}, {params["新手自選四星"]}, {params["新手自選三星"]}],
+                            data: [{params["新手定向五星"]}, {params["新手定向四星"]}, {params["新手定向三星"]}],
                             backgroundColor: ['#FFD306', '#9393FF', '#97CBFF'],
                             hoverOffset: 4
                         }}]
                     }};
-            
+
                     const config1 = {{
                         type: 'pie',
                         data: data1,
@@ -218,7 +231,7 @@ class Template:
                             }}
                         }},
                     }};
-            
+
                     const config2 = {{
                         type: 'pie',
                         data: data2,
@@ -235,7 +248,7 @@ class Template:
                             }}
                         }},
                     }};
-            
+
                     const config3 = {{
                         type: 'pie',
                         data: data3,
@@ -252,7 +265,7 @@ class Template:
                             }}
                         }},
                     }};
-            
+
                     const config4 = {{
                         type: 'pie',
                         data: data4,
@@ -269,7 +282,7 @@ class Template:
                             }}
                         }},
                     }};
-            
+
                     const config5 = {{
                         type: 'pie',
                         data: data5,
@@ -286,7 +299,7 @@ class Template:
                             }}
                         }},
                     }};
-            
+
                     const config6 = {{
                         type: 'pie',
                         data: data6,
@@ -312,7 +325,7 @@ class Template:
         """
 
         if self.charts:
-            for i in self.charts.items():
+            for i in self.charts.values():
                 html += "\n"
                 html += i
 
