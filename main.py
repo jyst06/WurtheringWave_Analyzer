@@ -1,3 +1,5 @@
+__version__ = "1.0"
+
 import re
 import requests
 import customtkinter as ctk
@@ -5,6 +7,12 @@ from tkinter import filedialog, messagebox
 import webbrowser
 from template import Template
 import configparser
+
+def write_html(html: str) -> None:
+    """寫入html"""
+    with open("result.html", "w", encoding="utf-8") as f:
+        f.write(html)
+
 
 def read_file_path_config() -> str | None:
     """讀取路徑"""
@@ -189,14 +197,40 @@ class Analyzer:
             "五星倍率升階": 0.15
         }
 
-    def analyze_all(self) -> None:
+    def analyze_all(self) -> dict:
+        queue_list = ["角色活動", "武器活動", "角色常駐", "武器常駐", "新手", "新手定向"]
+        quality_list = ["五星", "四星", "三星"]
+        pity_list = ["五星第", "四星第"]
+        last_five_star_label = "上一個五星"
         score_info = self.analyze_score()
         all_info = self.get_pool_info("all")
+        character_event_info = self.get_pool_info("角色活動")
+        weapon_event_info = self.get_pool_info("武器活動")
+        character_permanent_info = self.get_pool_info("角色常駐")
+        weapon_permanent_info = self.get_pool_info("武器常駐")
+        new_player_info = self.get_pool_info("新手池")
+        new_player_lock_info = self.get_pool_info("新手定向")
+        info_queue_list = [character_event_info, weapon_event_info, character_permanent_info,
+                           weapon_permanent_info, new_player_info, new_player_lock_info]
 
         self.analyzed_value["評級"] = score_info[1]
         self.analyzed_value["運氣分數"] = score_info[0]
         self.analyzed_value["總抽數"] = all_info["total_pity"]
         self.analyzed_value["五星數"] = all_info["total_five_star"]
+
+        for index, title in enumerate(queue_list):
+            self.analyzed_value[title+quality_list[0]] = info_queue_list[index]["total_five_star"]
+            self.analyzed_value[title+quality_list[1]] = info_queue_list[index]["total_four_star"]
+            self.analyzed_value[title+quality_list[2]] = (info_queue_list[index]["total_pity"] -
+                                                          info_queue_list[index]["total_five_star"] -
+                                                          info_queue_list[index]["total_four_star"])
+
+        for i in range(4):
+            self.analyzed_value[queue_list[i]+pity_list[0]] = info_queue_list[i]["five_star_pity"]
+            self.analyzed_value[queue_list[i]+pity_list[1]] = info_queue_list[i]["four_star_pity"]
+            self.analyzed_value[queue_list[i]+last_five_star_label] = info_queue_list[i]["last_five_star"]
+
+        return self.analyzed_value
 
     def analyze_score(self) -> tuple[int, str]:
         all_info = self.get_pool_info("all")
@@ -254,18 +288,18 @@ class Analyzer:
         :param info_type: "角色活動"
         :return: {
                 "total_pity": int,"total_four_star": int , "total_five_star": int, "total_loss_event_five_star": int,
-                "four_star_pity": int, "five_star_pity": int
+                "four_star_pity": int, "five_star_pity": int, "last_five_star": str
                 }
 
         :param info_type: "武器活動", "角色常駐", "武器常駐"
         :return: {
                 "total_pity": int,"total_four_star": int , "total_five_star": int, "four_star_pity": int,
-                "five_star_pity": int
+                "five_star_pity": int, "last_five_star": str
                 }
 
         :param info_type: "新手池", "新手定向"
         :return: {
-                "total_pity": int,"total_four_star": int , "total_five_star": int
+                "total_pity": int,"total_four_star": int , "total_five_star": int, "last_five_star": str
                 }
         """
         four_star_pity = 0
@@ -274,6 +308,7 @@ class Analyzer:
         total_four_star = 0
         total_five_star = 0
         total_loss_event_five_star = 0
+        last_five_star = ""
 
         if info_type == "all":
             for key in self.data:
@@ -300,13 +335,21 @@ class Analyzer:
                 total_five_star = self.data[info_type][-2]
                 total_pity = self.data[info_type][-1]
 
+                for item in self.data[info_type]:
+                    try:
+                        if item[1] == 5:
+                            last_five_star = item[0]
+                    except TypeError:
+                        pass
+
             return {
                 "total_pity": total_pity,
                 "total_four_star": total_four_star,
                 "total_five_star": total_five_star,
                 "total_loss_event_five_star": total_loss_event_five_star,
                 "four_star_pity": four_star_pity,
-                "five_star_pity": five_star_pity
+                "five_star_pity": five_star_pity,
+                "last_five_star": last_five_star
             }
 
         elif info_type in ["角色常駐", "武器常駐", "武器活動"]:
@@ -317,12 +360,20 @@ class Analyzer:
                 total_five_star = self.data[info_type][-2]
                 total_pity = self.data[info_type][-1]
 
+                for item in self.data[info_type]:
+                    try:
+                        if item[1] == 5:
+                            last_five_star = item[0]
+                    except TypeError:
+                        pass
+
             return {
                 "total_pity": total_pity,
                 "total_four_star": total_four_star,
                 "total_five_star": total_five_star,
                 "four_star_pity": four_star_pity,
-                "five_star_pity": five_star_pity
+                "five_star_pity": five_star_pity,
+                "last_five_star": last_five_star
             }
 
         elif info_type in ["新手池", "新手定向"]:
@@ -331,14 +382,20 @@ class Analyzer:
                 total_five_star = self.data[info_type][-2]
                 total_pity = self.data[info_type][-1]
 
+                for item in self.data[info_type]:
+                    try:
+                        if item[1] == 5:
+                            last_five_star = item[0]
+                    except TypeError:
+                        pass
+
             return {
                 "total_pity": total_pity,
                 "total_four_star": total_four_star,
-                "total_five_star": total_five_star
+                "total_five_star": total_five_star,
+                "last_five_star": last_five_star
             }
 
-    def apply_analyze_to_template(self):
-        pass
 
 class Ui(ctk.CTk):
     """UI介面"""
@@ -378,7 +435,7 @@ class Ui(ctk.CTk):
         edit_file_path_config(path)
 
     def help_video(self):
-        webbrowser.open("")
+        webbrowser.open("https://youtu.be/dQHYDs62lS8")
 
     def open_github(self):
         webbrowser.open("https://github.com/jyst06?tab=repositories")
@@ -392,21 +449,23 @@ class Ui(ctk.CTk):
 
             pool = Pool(payload)
             data = pool.get_all_data()
-            print(data)
 
-            print(Analyzer(data).analyze_score())
-            # analyzed_data = Analyzer(data).analyze_all()
+            analyzed_data = Analyzer(data).analyze_all()
 
-            # for i, key in enumerate(data):
-            #     if not key:
-            #         chart_filter.append(i+1)
-            #
-            # if chart_filter:
-            #     template = Template(chart_filter)
-            # else:
-            #     template = Template()
-            #
-            # template(analyzed_data)
+            for i, key in enumerate(data):
+                if not key:
+                    chart_filter.append(i+1)
+
+            if chart_filter:
+                template = Template(chart_filter)
+            else:
+                template = Template()
+
+            html_str = template(analyzed_data)
+
+            write_html(html_str)
+
+            webbrowser.open("result.html")
 
         else:
             messagebox.showerror("錯誤", "請先選擇log文件!")
@@ -418,7 +477,6 @@ class Ui(ctk.CTk):
 def main():
     app = Ui()
     app.loop()
-
 
 if __name__ == '__main__':
     main()
