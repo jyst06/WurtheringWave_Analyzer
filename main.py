@@ -8,6 +8,7 @@ import webbrowser
 from template import Template
 import configparser
 
+
 def write_html(html: str) -> None:
     """寫入html"""
     with open("result.html", "w", encoding="utf-8") as f:
