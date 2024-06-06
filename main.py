@@ -1,4 +1,4 @@
-__version__ = "1.3"
+__version__ = "1.4"
 
 import re
 import requests
@@ -7,6 +7,7 @@ from tkinter import filedialog, messagebox
 import webbrowser
 from template import Template
 import configparser
+from datetime import datetime
 
 
 def check_latest_release():
@@ -16,9 +17,9 @@ def check_latest_release():
     print(latest_release["assets"][0]["browser_download_url"])
 
     if __version__ != latest_release['tag_name']:
-        if messagebox.askyesno("New Version Available",
-                               f"A new version ({latest_release['tag_name']}) is available. "
-                               f"Do you want to download it?"):
+        if messagebox.askyesno("發現新版本",
+                               f"新版本 ({latest_release['tag_name']}) 目前可供下載. "
+                               f"要下載嗎?\n更新內容 :\n{latest_release['body']}"):
             webbrowser.open(latest_release["assets"][0]["browser_download_url"])
 
 
@@ -327,6 +328,7 @@ class Analyzer:
         total_five_star = 0
         total_loss_event_five_star = 0
         last_five_star = ""
+        last_five_star_status = False
 
         if info_type == "all":
             for key in self.data:
@@ -355,8 +357,9 @@ class Analyzer:
 
                 for item in self.data[info_type]:
                     try:
-                        if item[1] == 5:
+                        if item[1] == 5 and not last_five_star_status:
                             last_five_star = item[0]
+                            last_five_star_status = True
                     except TypeError:
                         pass
 
@@ -380,8 +383,9 @@ class Analyzer:
 
                 for item in self.data[info_type]:
                     try:
-                        if item[1] == 5:
+                        if item[1] == 5 and not last_five_star_status:
                             last_five_star = item[0]
+                            last_five_star_status = True
                     except TypeError:
                         pass
 
@@ -402,8 +406,9 @@ class Analyzer:
 
                 for item in self.data[info_type]:
                     try:
-                        if item[1] == 5:
+                        if item[1] == 5 and not last_five_star_status:
                             last_five_star = item[0]
+                            last_five_star_status = True
                     except TypeError:
                         pass
 
@@ -414,13 +419,27 @@ class Analyzer:
                 "last_five_star": last_five_star
             }
 
+    def analyze_table_data(self) -> list:
+        return_data_list = []
+
+        for key in self.data:
+            for params_list in self.data[key]:
+                if type(params_list) is list:
+                    if params_list[1] >= 4:
+                        return_data_list.append([key, params_list[1], params_list[0], params_list[2]])
+
+        return_data_list = sorted(return_data_list,
+                                  key=lambda x: datetime.strptime(x[3], '%Y-%m-%d %H:%M:%S'), reverse=True)
+
+        return return_data_list
+
 
 class Ui(ctk.CTk):
     """UI介面"""
     def __init__(self):
         super().__init__()
         self.geometry("300x300")
-        self.title("鳴潮抽卡分析")
+        self.title(f"鳴潮抽卡分析 v{__version__}")
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
 
@@ -442,11 +461,14 @@ class Ui(ctk.CTk):
         button_container = ctk.CTkFrame(self)
         button_container.pack(side="bottom")
 
-        help_button = ctk.CTkButton(button_container, text="教學", command=self.help_video)
-        help_button.pack(side="left", pady=10, padx=10)
+        help_button = ctk.CTkButton(button_container, text="教學", command=self.help_video, width=90)
+        help_button.grid(pady=10, padx=5, column=0, row=0)
 
-        github_button = ctk.CTkButton(button_container, text="Github", command=self.open_github)
-        github_button.pack(side="right", pady=10, padx=10)
+        feedback_button = ctk.CTkButton(button_container, text="反饋", command=self.feed_back, width=90)
+        feedback_button.grid(pady=10, padx=5, column=1, row=0)
+
+        github_button = ctk.CTkButton(button_container, text="Github", command=self.open_github, width=90)
+        github_button.grid(pady=10, padx=5, column=2, row=0)
 
     def open_file(self):
         path = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
@@ -455,6 +477,9 @@ class Ui(ctk.CTk):
 
     def help_video(self):
         webbrowser.open("https://youtu.be/dQHYDs62lS8")
+
+    def feed_back(self):
+        webbrowser.open("https://forms.gle/ocmNrxsmGKdC8hrX6")
 
     def open_github(self):
         webbrowser.open("https://github.com/jyst06?tab=repositories")
@@ -470,7 +495,9 @@ class Ui(ctk.CTk):
                 pool = Pool(payload)
                 data = pool.get_all_data()
 
-                analyzed_data = Analyzer(data).analyze_all()
+                analyzer = Analyzer(data)
+                table_data = analyzer.analyze_table_data()
+                analyzed_data = analyzer.analyze_all()
 
                 for i, key in enumerate(data):
                     if not key:
@@ -481,7 +508,7 @@ class Ui(ctk.CTk):
                 else:
                     template = Template()
 
-                html_str = template(analyzed_data)
+                html_str = template(analyzed_data, table_data)
 
                 write_html(html_str)
 

@@ -8,13 +8,21 @@ class Template:
             5: "var chart5 = new Chart(document.getElementById('chart5'), config5);",
             6: "var chart6 = new Chart(document.getElementById('chart6'), config6);"
         }
+        self.table = """
+            <tr>
+                <td>{pool}</td>
+                <td>{star}</td>
+                <td>{name}</td>
+                <td>{date}</td>
+            </tr>
+        """
 
         if chart_filter is not None:
             for i in chart_filter:
                 del self.charts[i]
 
-    def __call__(self, params: dict) -> str:
-        html = f"""
+    def __call__(self, params: dict, table_data: list) -> str:
+        html_part1 = f"""
             <!DOCTYPE html>
             <html lang="en">
             <head>
@@ -105,6 +113,35 @@ class Template:
                     .item-row {{
                         margin-top: 10px;
                     }}
+                    .table-container {{
+                        max-height: 400px; /* 設置最大高度 */
+                        overflow: auto;
+                        background-color: rgba(255, 255, 255, 0.9);
+                        border-radius: 15px;
+                        padding: 20px;
+                        margin-top: 20px;
+                        width: 100%;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        transition: transform 0.3s;
+                    }}
+                    .table-container:hover {{
+                        transform: scale(1.02);
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                    }}
+                    th, td {{
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        text-align: center;
+                    }}
+                    th {{
+                        background-color: #f2f2f2;
+                    }}
+                    tr:hover {{
+                        background-color: #f5f5f5;
+                    }}
                 </style>
             </head>
             <body>
@@ -151,6 +188,23 @@ class Template:
                             <div class="item-row">四星 {params["武器常駐四星第"]}/10</div>
                             <div class="item-row">上一個五星:{params["武器常駐上一個五星"]}</div>
                         </div>
+                    </div>
+                    <div class="table-container">
+                        <h2>四星以上角色紀錄</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>卡池</th>
+                                    <th>星級</th>
+                                    <th>名稱</th>
+                                    <th>日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                """
+        html_part2 = f"""
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <script>
@@ -327,10 +381,16 @@ class Template:
 
         if self.charts:
             for i in self.charts.values():
-                html += "\n"
-                html += i
+                html_part2 += "\n"
+                html_part2 += i
 
-        html += "\n"
-        html += html_end
+        for item in table_data:
+            html_part1 += "\n"
+            html_part1 += self.table.format(pool=item[0], star=item[1], name=item[2], date=item[3])
 
-        return html
+        html_part1 += "\n"
+        html_part1 += html_part2
+        html_part1 += "\n"
+        html_part1 += html_end
+
+        return html_part1
