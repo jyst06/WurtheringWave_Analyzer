@@ -1,4 +1,4 @@
-__version__ = "1.0"
+__version__ = "1.1"
 
 import re
 import requests
@@ -7,6 +7,19 @@ from tkinter import filedialog, messagebox
 import webbrowser
 from template import Template
 import configparser
+
+
+def check_latest_release():
+    response = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer/releases/latest")
+    latest_release = response.json()
+    print(f"Latest Version:{latest_release['tag_name']}")
+    print(latest_release["assets"][0]["browser_download_url"])
+
+    if __version__ != latest_release['tag_name']:
+        if messagebox.askyesno("New Version Available",
+                               f"A new version ({latest_release['tag_name']}) is available. "
+                               f"Do you want to download it?"):
+            webbrowser.open(latest_release["assets"][0]["browser_download_url"])
 
 
 def write_html(html: str) -> None:
@@ -127,7 +140,7 @@ class Pool:
             return return_data
         else:
             print("Request failed!")
-            messagebox.showerror("錯誤", "URL已過期，請重新進入遊戲抽卡紀錄!")
+            messagebox.showerror("錯誤", "URL不可用，請重新進入遊戲抽卡紀錄!")
             edit_file_path_config("none")
             raise Exception("Request failed!")
 
@@ -479,5 +492,7 @@ def main():
     app = Ui()
     app.loop()
 
+
 if __name__ == '__main__':
+    check_latest_release()
     main()

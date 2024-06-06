@@ -8,6 +8,7 @@ class Template:
             5: "var chart5 = new Chart(document.getElementById('chart5'), config5);",
             6: "var chart6 = new Chart(document.getElementById('chart6'), config6);"
         }
+
         if chart_filter is not None:
             for i in chart_filter:
                 del self.charts[i]
