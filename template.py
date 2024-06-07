@@ -11,7 +11,7 @@ class Template:
         self.table = """
             <tr>
                 <td>{pool}</td>
-                <td>{star}</td>
+                <td>{pity}</td>
                 <td>{name}</td>
                 <td>{date}</td>
             </tr>
@@ -166,37 +166,37 @@ class Template:
                     </div>
                     <div class="other-container">
                         <div class="item">
-                            角色活動喚取
+                            角色活動喚取(保底計數)
                             <div class="item-row">五星 {params["角色活動五星第"]}/80</div>
                             <div class="item-row">四星 {params["角色活動四星第"]}/10</div>
                             <div class="item-row">上一個五星:{params["角色活動上一個五星"]}</div>
                         </div>
                         <div class="item">
-                            武器活動喚取
+                            武器活動喚取(保底計數)
                             <div class="item-row">五星 {params["武器活動五星第"]}/80</div>
                             <div class="item-row">四星 {params["武器活動四星第"]}/10</div>
                             <div class="item-row">上一個五星:{params["武器活動上一個五星"]}</div>
                         </div>
                         <div class="item">
-                            角色常駐喚取
+                            角色常駐喚取(保底計數)
                             <div class="item-row">五星 {params["角色常駐五星第"]}/80</div>
                             <div class="item-row">四星 {params["角色常駐四星第"]}/10</div>
                             <div class="item-row">上一個五星:{params["角色常駐上一個五星"]}</div>
                         </div>
                         <div class="item">
-                            武器常駐喚取
+                            武器常駐喚取(保底計數)
                             <div class="item-row">五星 {params["武器常駐五星第"]}/80</div>
                             <div class="item-row">四星 {params["武器常駐四星第"]}/10</div>
                             <div class="item-row">上一個五星:{params["武器常駐上一個五星"]}</div>
                         </div>
                     </div>
                     <div class="table-container">
-                        <h2>四星以上角色紀錄</h2>
+                        <h2>五星紀錄</h2>
                         <table>
                             <thead>
                                 <tr>
                                     <th>卡池</th>
-                                    <th>星級</th>
+                                    <th>出貨抽數</th>
                                     <th>名稱</th>
                                     <th>日期</th>
                                 </tr>
@@ -387,7 +387,7 @@ class Template:
 
         for item in table_data:
             html_part1 += "\n"
-            html_part1 += self.table.format(pool=item[0], star=item[1], name=item[2], date=item[3])
+            html_part1 += self.table.format(pool=item[0], pity=item[3], name=item[1], date=item[2])
 
         html_part1 += "\n"
         html_part1 += html_part2

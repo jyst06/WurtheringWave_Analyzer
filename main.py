@@ -1,4 +1,4 @@
-__version__ = "1.7"
+__version__ = "1.8"
 
 import re
 import requests
@@ -422,17 +422,46 @@ class Analyzer:
 
     def analyze_table_data(self) -> list:
         return_data_list = []
+        five_star_history = []
+        counter = 0
 
         for key in self.data:
             if not self.data[key]:
                 continue
             for params_list in self.data[key]:
                 if type(params_list) is list:
-                    if params_list[1] >= 4:
-                        return_data_list.append([key, params_list[1], params_list[0], params_list[2]])
+                    if params_list[1] == 5:
+                        if not five_star_history:
+                            five_star_history.append(key)  # 卡池
+                            five_star_history.append(params_list[0])  # 名稱
+                            five_star_history.append(params_list[2])  # 日期
+                            counter += 1
+                            print(f"發現五星:{five_star_history}")
+                        else:
+                            five_star_history.append(counter - 1)  # 計數
+                            return_data_list.append(five_star_history)
+                            print(f"儲存計數:{five_star_history}")
+                            five_star_history = []
+                            counter = 0
+
+                            five_star_history.append(key)  # 卡池
+                            five_star_history.append(params_list[0])  # 名稱
+                            five_star_history.append(params_list[2])  # 日期
+                            counter += 1
+                            print(f"發現五星:{five_star_history}")
+
+                    if counter != 0:
+                        counter += 1
+
+            if five_star_history:
+                five_star_history.append(counter - 1)
+                return_data_list.append(five_star_history)
+                print(f"儲存計數:{five_star_history}")
+                five_star_history = []
+                counter = 0
 
         return_data_list = sorted(return_data_list,
-                                  key=lambda x: datetime.strptime(x[3], '%Y-%m-%d %H:%M:%S'), reverse=True)
+                                  key=lambda x: datetime.strptime(x[2], '%Y-%m-%d %H:%M:%S'), reverse=True)
 
         return return_data_list
 
