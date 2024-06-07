@@ -8,10 +8,10 @@ import webbrowser
 from template import Template
 import configparser
 from datetime import datetime
-
+import subprocess
 
 def check_latest_release():
-    response = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer/releases/latest")
+    response = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer_exe/releases/latest")
     latest_release = response.json()
     print(f"Latest Version:{latest_release['tag_name']}")
     print(latest_release["assets"][0]["browser_download_url"])
@@ -20,8 +20,9 @@ def check_latest_release():
         if messagebox.askyesno("發現新版本",
                                f"新版本 ({latest_release['tag_name']}) 目前可供下載. "
                                f"要下載嗎?\n更新內容 :\n{latest_release['body']}"):
-            webbrowser.open(latest_release["assets"][0]["browser_download_url"])
+            subprocess.Popen("updater.bat", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+            raise Exception("Update")
 
 def write_html(html: str) -> None:
     """寫入html"""
