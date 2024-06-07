@@ -153,6 +153,7 @@ class Template:
                         <div class="header-container-box">
                             <p style="text-align: left; font-size: 30px; padding-left: 20px"><b>總抽數:{params["總抽數"]}</b></p>
                             <p style="text-align: left; font-size: 30px; padding-left: 20px"><b>五星數:{params["五星數"]}</b></p>
+                            <p style="text-align: left; font-size: 30px; padding-left: 20px"><b>平均出金:{params["總抽數"]//params["五星數"]}</b></p>
                         </div>
                     </div>
                     <div class="chart-container">
