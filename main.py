@@ -21,7 +21,7 @@ class Ui(ctk.CTk):
         self.title(f"鳴潮抽卡分析 v{__version__}")
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
-
+        self.path=os.getcwd()
         self.pack_items()
 
     def pack_items(self):
@@ -59,7 +59,7 @@ class Ui(ctk.CTk):
                 messagebox.showinfo("導入成功", logpath)
                 payload = transform_url_to_payload(url)
                 for key,value in payload.items():
-                    edit_file_path_config2(path,key,value)
+                    edit_file_path_config2(self.path,key,value)
 
     def help_video(self):
         webbrowser.open("https://youtu.be/dQHYDs62lS8")
@@ -74,7 +74,7 @@ class Ui(ctk.CTk):
         chart_filter = []
 
         try:
-            payload=read_file_path_config2(path=path)
+            payload=read_file_path_config2(self.path)
             pool = Pool(payload)
             data = pool.get_all_data()
 
@@ -94,7 +94,7 @@ class Ui(ctk.CTk):
 
                 html_str = template(analyzed_data, table_data)
 
-                write_html(html_str,path=path)
+                write_html(html_str,path=self.path)
 
                 webbrowser.open("result.html")
             else:
@@ -123,7 +123,6 @@ def main():
 
 
 if __name__ == '__main__':
-    path=os.getcwd()
     vardcit=listtodcit(sys.argv)
     # vardcit={}
     if vardcit.get('action',None)=='version':
@@ -131,3 +130,4 @@ if __name__ == '__main__':
     else:
         print({'action':'gogo'})
         main()
+
