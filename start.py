@@ -1,24 +1,24 @@
 import requests
 import os
-from tqdm import tqdm
 import subprocess
 from tkinter import messagebox
 import configparser
+from pyzipper import AESZipFile
 
 
 def download_exe(url):
     local_filename = url.split('/')[-1]
 
     with requests.get(url, stream=True) as r, open(local_filename, 'wb') as f:
-        file_size = int(r.headers.get('content-length', 0))
         chunk_size = 8192
-        with tqdm(total=file_size, unit='B', unit_scale=True, desc=local_filename, ncols=100) as pbar:
-            for chunk in r.iter_content(chunk_size=chunk_size):
-                f.write(chunk)
-                pbar.update(len(chunk))
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            f.write(chunk)
 
     if not os.path.exists("main.exe"):
         os.rename(local_filename, "main.exe")
+
+    with AESZipFile(local_filename) as zip_file:
+        zip_file.extractall(path=os.getcwd())
 
 
 def versionInquire():
