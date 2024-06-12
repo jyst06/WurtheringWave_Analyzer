@@ -3,7 +3,7 @@ import os
 from tqdm import tqdm
 import subprocess
 from tkinter import messagebox
-import json
+import configparser
 
 
 def download_exe(url):
@@ -21,9 +21,28 @@ def download_exe(url):
         os.rename(local_filename, "main.exe")
 
 
+def versionInquire():
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    path=os.getcwd()
+    config.read(f"{path}/config.ini", encoding='utf-8')
+
+    return float(config.get("var", "version"))
+
+
+def edit_file_path_config(value) -> None:
+    """修改配置"""
+    config = configparser.ConfigParser()
+    config.optionxform = str
+    path=os.getcwd()
+    config.read(f"{path}/config.ini", encoding='utf-8')
+    config.set("var", "version", f'{value}')
+    with open("config.ini", "w", encoding='utf-8') as config_file:
+        config.write(config_file)
+
+
 def check_latest_release():
-    response = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer_exe/releases/latest")
-    latest_release = response.json()
+    latest_release = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer_exe/releases/latest").json()
     print(f"Latest Version:{latest_release['tag_name']}")
     print(latest_release["assets"][0]["browser_download_url"])
 
@@ -35,21 +54,12 @@ def check_latest_release():
                                f"新版本 ({latest_release['tag_name']}) 目前可供下載. "
                                f"要下載嗎?\n更新內容 :\n{latest_release['body']}"):
 
-            latest_release = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer_exe/releases/latest").json()
+            latest_release = requests.get("https://api.github.com/repos/m216884792/WurtheringWave_Analyzer/releases/latest").json()
             download_exe(latest_release["assets"][0]["browser_download_url"])
+            edit_file_path_config(float(latest_release['tag_name']))
 
     subprocess.run(f'{os.getcwd()}/main.exe "action"="gogo"', stdout=subprocess.PIPE, text=False)
 
-
-def versionInquire():
-    subprocessstr=subprocess.Popen(f'{os.getcwd()}/main.exe "action"="version"', stdout=subprocess.PIPE, text=True)
-
-    returnstr=subprocessstr.communicate()[0]
-    subprocessstr.kill()
-    returnstr=returnstr.replace("'", '"')
-    returnstr=json.loads(returnstr)
-
-    return float(returnstr['action'])
 
 if __name__ == '__main__':
     check_latest_release()
