@@ -42,19 +42,17 @@ def edit_file_path_config(value) -> None:
 
 
 def check_latest_release():
-    latest_release = requests.get("https://api.github.com/repos/jyst06/WurtheringWave_Analyzer_exe/releases/latest").json()
+    latest_release = requests.get("https://api.github.com/repos/m216884792/WurtheringWave_Analyzer/releases/latest").json()
     print(f"Latest Version:{latest_release['tag_name']}")
-    print(latest_release["assets"][0]["browser_download_url"])
 
     __version__=versionInquire()
     print(f'version={__version__}')
-
+    print(latest_release['tag_name'])
     if __version__ != float(latest_release['tag_name']):
         if messagebox.askyesno("發現新版本",
                                f"新版本 ({latest_release['tag_name']}) 目前可供下載. "
                                f"要下載嗎?\n更新內容 :\n{latest_release['body']}"):
 
-            latest_release = requests.get("https://api.github.com/repos/m216884792/WurtheringWave_Analyzer/releases/latest").json()
             download_exe(latest_release["assets"][0]["browser_download_url"])
             edit_file_path_config(float(latest_release['tag_name']))
 
