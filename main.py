@@ -83,20 +83,24 @@ class Ui(ctk.CTk):
                 table_data = analyzer.analyze_table_data()
                 analyzed_data = analyzer.analyze_all()
 
-                for i, key in enumerate(data):
-                    if not key:
-                        chart_filter.append(i+1)
+                if analyzed_data:
+                    for i, key in enumerate(data):
+                        if not key:
+                            chart_filter.append(i+1)
 
-                if chart_filter:
-                    template = Template(chart_filter)
+                    if chart_filter:
+                        template = Template(chart_filter)
+                    else:
+                        template = Template()
+
+                    html_str = template(analyzed_data, table_data)
+
+                    write_html(html_str,path=self.path)
+
+                    webbrowser.open("result.html")
+
                 else:
-                    template = Template()
-
-                html_str = template(analyzed_data, table_data)
-
-                write_html(html_str,path=self.path)
-
-                webbrowser.open("result.html")
+                    messagebox.showerror("錯誤", f"錯誤: 請查看數據是否錯誤")
             else:
                 messagebox.showerror("錯誤", f"錯誤: 請導入所需檔案")
 
@@ -124,10 +128,5 @@ def main():
 
 if __name__ == '__main__':
     vardcit=listtodcit(sys.argv)
-    # vardcit={}
-    if vardcit.get('action',None)=='version':
-        print({'action':__version__})
-    else:
-        print({'action':'gogo'})
+    if vardcit.get('action',None)=='gogo':
         main()
-
