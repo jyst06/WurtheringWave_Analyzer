@@ -21,7 +21,7 @@ class Ui(ctk.CTk):
         self.title(f"鳴潮抽卡分析 v{__version__}")
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
-        self.path=os.getcwd()
+        self.path = os.getcwd()
         self.pack_items()
 
     def pack_items(self):
@@ -51,7 +51,7 @@ class Ui(ctk.CTk):
 
     def open_file(self):
         logpath = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
-        if len(logpath)>0:
+        if len(logpath) > 0:
             url = get_url_from_log(logpath)
             if not url:
                 messagebox.showerror("錯誤", f"錯誤: 此檔案內所需無網址")
@@ -59,7 +59,7 @@ class Ui(ctk.CTk):
                 messagebox.showinfo("導入成功", logpath)
                 payload = transform_url_to_payload(url)
                 for key,value in payload.items():
-                    edit_file_path_config2(self.path,key,value)
+                    edit_file_path_config2(self.path, key, value)
 
     def help_video(self):
         webbrowser.open("https://youtu.be/dQHYDs62lS8")
@@ -95,7 +95,7 @@ class Ui(ctk.CTk):
 
                     html_str = template(analyzed_data, table_data)
 
-                    write_html(html_str,path=self.path)
+                    write_html(html_str, path=self.path)
 
                     webbrowser.open("result.html")
 
@@ -113,12 +113,12 @@ class Ui(ctk.CTk):
 
 
 def listtodcit(importvar):
-    vardict={}
+    vardict = {}
     del importvar[0]
-    if len(importvar)>0:
+    if len(importvar) > 0:
         for i in importvar:
-            i2=i.split('=')
-            vardict[i2[0]]=i2[1]
+            i2 = i.split('=')
+            vardict[i2[0]] = i2[1]
     return vardict
 
 def main():
@@ -127,6 +127,6 @@ def main():
 
 
 if __name__ == '__main__':
-    vardcit=listtodcit(sys.argv)
-    if vardcit.get('action',None)=='gogo':
+    vardict = listtodcit(sys.argv)
+    if vardict.get('action', None) == 'gogo':
         main()

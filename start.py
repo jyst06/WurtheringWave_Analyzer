@@ -24,7 +24,7 @@ def download_exe(url):
 def versionInquire():
     config = configparser.ConfigParser()
     config.optionxform = str
-    path=os.getcwd()
+    path = os.getcwd()
     config.read(f"{path}/config.ini", encoding='utf-8')
 
     return float(config.get("var", "version"))
@@ -34,7 +34,7 @@ def edit_file_path_config(value) -> None:
     """修改配置"""
     config = configparser.ConfigParser()
     config.optionxform = str
-    path=os.getcwd()
+    path = os.getcwd()
     config.read(f"{path}/config.ini", encoding='utf-8')
     config.set("var", "version", f'{value}')
     with open("config.ini", "w", encoding='utf-8') as config_file:
