@@ -1,4 +1,4 @@
-# 鳴潮抽卡分析工具
+# 鳴潮抽卡分析工具(暫停更新)
 Youtube教學 : https://youtu.be/dQHYDs62lS8
 ***
 # 問題請參考下圖
