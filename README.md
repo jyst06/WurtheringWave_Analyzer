@@ -1,6 +1,9 @@
 # 鳴潮抽卡分析工具(暫停更新)
 Youtube教學 : https://youtu.be/dQHYDs62lS8
 ***
+[![Releases Badge](https://img.shields.io/github/downloads/jyst06/WurtheringWave_Analyzer/total)](https://github.com/jyst06/WurtheringWave_Analyzer/releases)
+[![Latest Release](https://img.shields.io/github/v/release/jyst06/WurtheringWave_Analyzer)](https://github.com/jyst06/WurtheringWave_Analyzer/releases/latest)
+***
 # 問題請參考下圖
 ## 1.無法開啟問題
 ![image](https://github.com/jyst06/WurtheringWave_Analyzer/assets/107468548/61edc00c-9d4f-416c-84ab-cdbac9ac95f6)
